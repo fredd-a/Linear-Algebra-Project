@@ -1,2 +1,2 @@
 # Linear-Algebra-Project
-Transforming a 3D object into a 2D project
+Applying various transformations to 3D objects
