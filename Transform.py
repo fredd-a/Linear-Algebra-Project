@@ -1,4 +1,5 @@
 
+#imports
 import numpy as np
 import tkinter as tk
 from tkinter import ttk
@@ -11,8 +12,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-# THEME
-
+# colours and fonts for the interface
 BG = "#0f1b2d"
 PANEL_BG = "#13253d"
 FIELD_BG = "#0c1523"
@@ -31,12 +31,13 @@ FONT_TITLE = ("Consolas", 20, "bold")
 FONT_MATRIX = ("Consolas", 14, "bold")
 
 
-# SHAPE GENERATORS
+# Helper functions for creating the different 3D shapes
 # Each returns (vertices: (N,3) float array, faces: list[list[int]])
 # Shapes are centered at the origin and sized to roughly fit inside
 # a radius-1 sphere so every shape shares consistent axis limits.
 
 def make_cube():
+    #creating the 8 corner points of a cube
     s = 0.75
     v = np.array([[x, y, z] for x in (-s, s) for y in (-s, s) for z in (-s, s)])
     # reorder into the 8 corners in a convenient winding order
@@ -64,6 +65,7 @@ def make_cube():
 
 
 def make_tetrahedron():
+    #creating the 4 vertices and triangular faces of a tetrahedron
     s = 0.8
     v = (
         s
@@ -82,6 +84,7 @@ def make_tetrahedron():
 
 
 def make_octahedron():
+    #creating the 6 vertices and 8 triangular faces of an octahedron
     s = 0.95
     v = np.array(
         [
@@ -107,6 +110,7 @@ def make_octahedron():
 
 
 def make_sphere(n_lat=10, n_lon=16, r=0.85):
+    #generate points around latitude and longtitude lines to approximate a sphere
     thetas = np.linspace(0, np.pi, n_lat)
     phis = np.linspace(0, 2 * np.pi, n_lon, endpoint=False)
     verts = []
@@ -132,6 +136,7 @@ def make_sphere(n_lat=10, n_lon=16, r=0.85):
 
 
 def make_cylinder(n=16, r=0.55, h=1.5):
+    # build  the top and bottom circles and connect them to form the cylinder
     bottom = [
         [r * np.cos(a), r * np.sin(a), -h / 2]
         for a in np.linspace(0, 2 * np.pi, n, endpoint=False)
@@ -151,6 +156,7 @@ def make_cylinder(n=16, r=0.55, h=1.5):
 
 
 def make_cone(n=16, r=0.7, h=1.5):
+    # build the circular base and connect it to the top point
     base = [
         [r * np.cos(a), r * np.sin(a), -h / 2]
         for a in np.linspace(0, 2 * np.pi, n, endpoint=False)
@@ -166,7 +172,9 @@ def make_cone(n=16, r=0.7, h=1.5):
     return verts, faces
 
 
-def make_torus(n_major=16, n_minor=10, R=0.6, r=0.22):
+def make_torus(n_major=16, n_minor=10, R=0.6, r=0.22):  # Actual name for the shape of a donut ( if it proves difficult, just eject it)
+    # The torus consists of two circles, the major and minor. n_major describes the number of vertices around the major circle....n_minor describes the number of vertices around the minor circle...R and r describe the radii of the major and minor circles respectively ( they can be edited )
+    #generate points around the two circles that make up the torus
     verts = []
     index = {}
     for i, u in enumerate(np.linspace(0, 2 * np.pi, n_major, endpoint=False)):
@@ -200,19 +208,19 @@ SHAPES = {
     "Torus": make_torus,
 }
 
-# TRANSFORMATION MATRIX BUILDERS
+# functions that create the basic 3D transformation matrices
 
-def rot_x(deg):
-    t = np.radians(deg)
-    return np.array([[1, 0, 0], [0, np.cos(t), -np.sin(t)], [0, np.sin(t), np.cos(t)]])
+def rot_x(deg): #create a matrix that rotates points around the X-axis
+    t = np.radians(deg)  #convert the angle from degrees to radians
+    return np.array([[1, 0, 0], [0, np.cos(t), -np.sin(t)], [0, np.sin(t), np.cos(t)]]) #creating the rotation matrix
 
 
-def rot_y(deg):
+def rot_y(deg): #create a matrix that rotates points around the Y-axis
     t = np.radians(deg)
     return np.array([[np.cos(t), 0, np.sin(t)], [0, 1, 0], [-np.sin(t), 0, np.cos(t)]])
 
 
-def rot_z(deg):
+def rot_z(deg): #create a matrix that rotates points around the Z-axis
     t = np.radians(deg)
     return np.array([[np.cos(t), -np.sin(t), 0], [np.sin(t), np.cos(t), 0], [0, 0, 1]])
 
@@ -227,7 +235,7 @@ TRANSFORMS = [
     "Custom Matrix",
 ]
 
-# MAIN APPLICATION
+#main window and application logic
 class TransformLab:
     def __init__(self, root):
         self.root = root
@@ -252,7 +260,7 @@ class TransformLab:
         self._rebuild_param_panel()
         self._apply_transform(np.eye(3))
 
-    # Styling
+    # setting up the colours, fonts, and widget styles
 
     def _setup_style(self):
         style = ttk.Style()
@@ -300,10 +308,10 @@ class TransformLab:
         style.map("TCheckbutton", background=[("active", PANEL_BG)])
 
 
-    # Layout
+    # building the control panel and plotting area
 
     def _build_layout(self):
-        # --- left control panel ---
+        # left control panel
         panel = ttk.Frame(self.root, padding=16, width=320)
         panel.pack(side=tk.LEFT, fill=tk.Y)
         panel.pack_propagate(False)
@@ -311,7 +319,7 @@ class TransformLab:
         ttk.Label(panel, text="TRANSFORM LAB", style="Title.TLabel").pack(anchor="w")
         ttk.Label(
             panel,
-            text="3D linear transformations, visualized",
+            text="3D linear transformations",
             style="TLabel",
             foreground=MUTED,
         ).pack(anchor="w", pady=(0, 18))
@@ -379,7 +387,7 @@ class TransformLab:
         ).pack(anchor="w", pady=(6, 16))
 
         # matrix readout ("spec sheet" card)
-        ttk.Label(panel, text="MATRIX", style="Section.TLabel").pack(anchor="w")
+        ttk.Label(panel, text="TRANSFORMATION MATRIX", style="Section.TLabel").pack(anchor="w")
         matrix_card = tk.Frame(
             panel, bg=FIELD_BG, highlightbackground=GRID_LINE, highlightthickness=1
         )
@@ -405,7 +413,7 @@ class TransformLab:
         )
         self.det_label.pack(anchor="w")
 
-        # --- right plotting area ---
+        # right plotting area
         plot_frame = tk.Frame(self.root, bg=BG)
         plot_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
@@ -432,26 +440,21 @@ class TransformLab:
         self.ax.set_ylabel("Y", color=MUTED)
         self.ax.set_zlabel("Z", color=MUTED)
 
-    # Shape loading
+    # load the selected shape and update the plot
 
     def _init_plot_objects(self):
-        # Created once and reused for the app's lifetime. Switching shapes
-        # updates their vertex data in place (via set_verts) instead of
-        # clearing the axes -- clearing mid-redraw is what caused a
-        # matplotlib 3D-projection crash on rapid shape switches.
-        #
-        # Seeded with real geometry (not an empty list) because
-        # FigureCanvasTkAgg triggers an initial draw as soon as it's
-        # constructed -- an empty Poly3DCollection at that point crashes
-        # matplotlib's 3D projection code.
+        '''
+        Created once and reused for the app's lifetime. Switching shapes
+        updates their vertex data in place instead of
+        clearing the axes.
+        Seeded with real geometry because FigureCanvasTkAgg triggers an initial draw as soon as it's
+        constructed.
+        '''
         verts, faces = SHAPES[self.shape_name.get()]()
         self.base_verts = verts
         self.faces = faces
         init_faces = [[verts[i] for i in f] for f in faces]
 
-        # facecolor=(0,0,0,0) (fully transparent RGBA) rather than the
-        # string "none" -- "none" triggers a matplotlib 3D-projection bug
-        # on some versions when the collection is actually rendered.
         self.ghost = Poly3DCollection(
             init_faces,
             facecolor=(0, 0, 0, 0),
@@ -484,9 +487,9 @@ class TransformLab:
         self._load_shape()
         self._apply_transform(self._current_matrix())
 
-    # ---------------------------------------------------
-    # Appearance: fill color + hollow (wireframe-only) toggle
-    # ---------------------------------------------------
+
+    # Appearance
+
     def _choose_color(self):
         rgb, hex_color = colorchooser.askcolor(
             initialcolor=self.shape_color, title="Choose shape color"
@@ -512,7 +515,7 @@ class TransformLab:
             self.mesh.set_linewidth(0.8)
         self.canvas.draw()
 
-    # Parameter panel (rebuilt per transformation type)
+    # building the controls needed for the selected transformation
 
     def _rebuild_param_panel(self):
         for w in self.param_frame.winfo_children():
@@ -535,7 +538,7 @@ class TransformLab:
             scale.pack(fill=tk.X, pady=(0, 10))
             self.param_vars[key] = var
 
-        if mode == "Scaling":
+        if mode == "Scaling": #scaling changes the size of the shape along each axis
             add_slider("Scale X", "sx", 0.1, 2.5, 1.0)
             add_slider("Scale Y", "sy", 0.1, 2.5, 1.0)
             add_slider("Scale Z", "sz", 0.1, 2.5, 1.0)
@@ -597,8 +600,7 @@ class TransformLab:
 
         self._on_param_change()
 
-
-    # Matrix computation
+    # working out the matrix based on the current settings
 
     def _current_matrix(self):
         mode = self.transform_name.get()
@@ -614,14 +616,14 @@ class TransformLab:
         if mode == "Rotation Z":
             return rot_z(v["angle"].get())
 
-        if mode == "Shear":
+        if mode == "Shear": #start with the identity matrix and change the shear terms
             M = np.eye(3)
             M[0, 1] = v["shxy"].get()
             M[0, 2] = v["shxz"].get()
             M[1, 2] = v["shyz"].get()
             return M
 
-        if mode == "Reflection":
+        if mode == "Reflection": # A negative value on a diagonal flips the shape across that axis
             return np.diag(
                 [
                     -1.0 if v["rx"].get() else 1.0,
@@ -643,7 +645,7 @@ class TransformLab:
         return np.eye(3)
 
 
-    # Applying / animating the transform
+    # apply the transformation and handle the animation
 
     def _on_param_change(self):
         if self.animating:
@@ -653,8 +655,10 @@ class TransformLab:
         self._apply_transform(M)
 
     def _apply_transform(self, M):
+        #multiplying the transformation matrix by all the shape's vertices
         transformed = (M @ self.base_verts.T).T
         faces = [[transformed[i] for i in f] for f in self.faces]
+        #updating the shape on the graph
         self.mesh.set_verts(faces)
         self.canvas.draw()
 
