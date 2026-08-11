@@ -1,14 +1,3 @@
-"""
-3D Linear Transformation Lab
------------------------------
-A Tkinter desktop app for visualizing how linear transformation matrices
-act on 3D shapes. Pick a shape, pick a transformation, drag the sliders
-(or type a custom matrix), and hit Animate to watch the shape morph.
-
-Run with:  python shape_transform_gui.py
-Requires:  numpy, matplotlib  (both pip-installable; tkinter ships with
-           most standard Python installs)
-"""
 
 import numpy as np
 import tkinter as tk
@@ -24,11 +13,11 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # THEME
 
-BG = "#0f1b2d"  # deep navy (page / figure background)
-PANEL_BG = "#13253d"  # slightly lighter navy (control panel)
-FIELD_BG = "#0c1523"  # input field background
-ACCENT = "#4fd1e8"  # cyan - primary accent
-ACCENT_2 = "#f2a65a"  # amber - animate / highlight accent
+BG = "#0f1b2d"
+PANEL_BG = "#13253d"
+FIELD_BG = "#0c1523"
+ACCENT = "#4fd1e8"
+ACCENT_2 = "#f2a65a"
 TEXT = "#34424d"
 MUTED = "#7b93ac"
 GRID_LINE = "#1e3a5f"
