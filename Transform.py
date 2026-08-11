@@ -22,9 +22,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-# ===========================================================
 # THEME
-# ===========================================================
+
 BG = "#0f1b2d"  # deep navy (page / figure background)
 PANEL_BG = "#13253d"  # slightly lighter navy (control panel)
 FIELD_BG = "#0c1523"  # input field background
@@ -43,13 +42,10 @@ FONT_TITLE = ("Consolas", 20, "bold")
 FONT_MATRIX = ("Consolas", 14, "bold")
 
 
-# ===========================================================
 # SHAPE GENERATORS
 # Each returns (vertices: (N,3) float array, faces: list[list[int]])
 # Shapes are centered at the origin and sized to roughly fit inside
 # a radius-1 sphere so every shape shares consistent axis limits.
-# ===========================================================
-
 
 def make_cube():
     s = 0.75
@@ -215,11 +211,7 @@ SHAPES = {
     "Torus": make_torus,
 }
 
-
-# ===========================================================
 # TRANSFORMATION MATRIX BUILDERS
-# ===========================================================
-
 
 def rot_x(deg):
     t = np.radians(deg)
@@ -246,12 +238,7 @@ TRANSFORMS = [
     "Custom Matrix",
 ]
 
-
-# ===========================================================
 # MAIN APPLICATION
-# ===========================================================
-
-
 class TransformLab:
     def __init__(self, root):
         self.root = root
@@ -276,9 +263,8 @@ class TransformLab:
         self._rebuild_param_panel()
         self._apply_transform(np.eye(3))
 
-    # ---------------------------------------------------
     # Styling
-    # ---------------------------------------------------
+
     def _setup_style(self):
         style = ttk.Style()
         style.theme_use("clam")
@@ -324,9 +310,9 @@ class TransformLab:
         )
         style.map("TCheckbutton", background=[("active", PANEL_BG)])
 
-    # ---------------------------------------------------
+
     # Layout
-    # ---------------------------------------------------
+
     def _build_layout(self):
         # --- left control panel ---
         panel = ttk.Frame(self.root, padding=16, width=320)
@@ -457,9 +443,8 @@ class TransformLab:
         self.ax.set_ylabel("Y", color=MUTED)
         self.ax.set_zlabel("Z", color=MUTED)
 
-    # ---------------------------------------------------
     # Shape loading
-    # ---------------------------------------------------
+
     def _init_plot_objects(self):
         # Created once and reused for the app's lifetime. Switching shapes
         # updates their vertex data in place (via set_verts) instead of
@@ -538,9 +523,8 @@ class TransformLab:
             self.mesh.set_linewidth(0.8)
         self.canvas.draw()
 
-    # ---------------------------------------------------
     # Parameter panel (rebuilt per transformation type)
-    # ---------------------------------------------------
+
     def _rebuild_param_panel(self):
         for w in self.param_frame.winfo_children():
             w.destroy()
@@ -624,9 +608,9 @@ class TransformLab:
 
         self._on_param_change()
 
-    # ---------------------------------------------------
+
     # Matrix computation
-    # ---------------------------------------------------
+
     def _current_matrix(self):
         mode = self.transform_name.get()
         v = self.param_vars
@@ -669,9 +653,9 @@ class TransformLab:
 
         return np.eye(3)
 
-    # ---------------------------------------------------
+
     # Applying / animating the transform
-    # ---------------------------------------------------
+
     def _on_param_change(self):
         if self.animating:
             return
